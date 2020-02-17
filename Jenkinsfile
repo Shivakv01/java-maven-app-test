@@ -1,10 +1,12 @@
 pipeline {
-    agent any
-    tools {
-        maven 'Maven 3.6.3'
-        jdk 'jdk13'
+    agent {
+        docker {
+            image 'maven:3-alpine' 
+            args '-v /root/.m2:/root/.m2' 
+        }
     }
     stages {
+        
         stage ('Initialize') {
             steps {
                 sh '''
@@ -13,15 +15,9 @@ pipeline {
                 '''
             }
         }
-
-        stage ('Build') {
+        stage('Build') { 
             steps {
-                sh 'mvn -v' 
-            }
-            post {
-                success {
-                    junit 'target/surefire-reports/**/*.xml' 
-                }
+                sh 'mvn -B -DskipTests clean package' 
             }
         }
     }
